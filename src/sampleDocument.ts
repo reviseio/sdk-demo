@@ -1,31 +1,4 @@
-/**
- * The document under review. Markdown rather than a .docx binary so the demo
- * is a text repo — the SDK infers the format from the filename.
- */
-const NDA = `# Mutual Non-Disclosure Agreement
-
-This Agreement is entered into between Northwind Analytics, Inc. ("Northwind") and the counterparty identified below, effective as of the date of last signature.
-
-## 1. Confidential Information
-
-"Confidential Information" means any non-public information disclosed by one Party to the other, whether orally, in writing, or by inspection of tangible objects, that is designated as confidential or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure.
-
-## 2. Obligations
-
-Each Party will protect the other's Confidential Information using at least the degree of care it uses for its own information of like importance, and in no event less than reasonable care. Neither Party will disclose Confidential Information to any third party except to its employees and advisers who need to know it and are bound by obligations no less protective than these.
-
-## 3. Term
-
-This Agreement continues for two (2) years from the Effective Date. The obligations in Section 2 survive for three (3) years after expiry, and indefinitely for any Confidential Information that constitutes a trade secret.
-
-## 4. Return of Materials
-
-On written request, each Party will return or destroy the other's Confidential Information, except for copies retained in routine backups or as required by law.
-
-## 5. Governing Law
-
-This Agreement is governed by the laws of the State of Delaware, without regard to its conflict of laws principles.
-`;
+import { productStrategyFile } from "./showcaseDocument";
 
 const ORDER_FORM = `# Order Form 2026-114
 
@@ -68,7 +41,11 @@ export function sampleFile(name: string, markdown: string): File {
 }
 
 export const SAMPLE_DOCUMENTS = [
-  { id: "nda", title: "Mutual NDA", file: () => sampleFile("Mutual NDA.md", NDA) },
+  {
+    id: "strategy-brief",
+    title: "Product Strategy Brief",
+    file: productStrategyFile,
+  },
   {
     id: "order-form",
     title: "Order Form 2026-114",

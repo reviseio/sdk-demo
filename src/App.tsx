@@ -35,13 +35,13 @@ const COLLAB_ON = new URLSearchParams(location.search).get("collab") !== "0";
 const ME = {
   id: "u-you",
   name: "You",
-  color: "#7C5CFF",
+  color: "#20639B",
 };
 
 const COLLEAGUE = {
   id: "u-dana",
   name: "Dana",
-  color: "#12A594",
+  color: "#5A7D93",
 };
 
 type PanelId = "changes" | "comments" | "tools" | "presence" | "selection";

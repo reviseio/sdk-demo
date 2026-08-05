@@ -5,7 +5,7 @@
   --line: #ddd8d1;
   --text: #1d1a16;
   --muted: #6f6759;
-  --accent: #7c5cff;
+  --accent: #20639b;
   --ins: #2f8757;
   --del: #c05446;
   --banner-bg: #fdf3dd;
@@ -21,7 +21,7 @@
   --line: #38322c;
   --text: #f3efe9;
   --muted: #a89f94;
-  --accent: #7c5cff;
+  --accent: #6ea2cf;
   --ins: #4ea172;
   --del: #d2685a;
   --banner-bg: #2b2418;
@@ -51,7 +51,7 @@ body {
 .brand small a:hover { text-decoration: underline; }
 .mark {
   width: 26px; height: 26px; border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent), #12a594);
+  background: linear-gradient(135deg, var(--accent), #5b88ae);
 }
 
 .tabs { display: flex; gap: 6px; flex: 1; }
