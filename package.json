@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@reviseio/sdk": "0.4.0",
+    "@reviseio/sdk": "0.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "yjs": "^13.6.0",
