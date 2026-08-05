@@ -1,0 +1,67 @@
+# Build and deploy the demo to GitHub Pages.
+#
+# One-time setup in the repo settings:
+#   1. Settings → Pages → Source: "GitHub Actions"
+#   2. Settings → Secrets and variables → Actions → new repository secret
+#      REVISE_NPM_TOKEN — the npm token that can read @reviseio/sdk.
+#
+# The site lands at https://<owner>.github.io/<repo>/ — BASE_PATH is derived
+# from the repo name automatically, so renaming the repo keeps working.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; a newer push supersedes an in-flight one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # The registry credential comes from the secret, never the repo.
+      - name: Configure registry auth
+        run: |
+          {
+            echo "@reviseio:registry=https://registry.npmjs.org/"
+            echo "//registry.npmjs.org/:_authToken=${REVISE_NPM_TOKEN}"
+          } > .npmrc
+        env:
+          REVISE_NPM_TOKEN: ${{ secrets.REVISE_NPM_TOKEN }}
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

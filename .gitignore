@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Vite
+.vite/
+vite.config.ts.timestamp-*
+
+# The registry credential for @reviseio/sdk lives in your user-level ~/.npmrc,
+# or in CI as an environment variable. Never here.
+.npmrc
+.env
+.env.*
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*

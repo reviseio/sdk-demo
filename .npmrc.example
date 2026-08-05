@@ -1,0 +1,4 @@
+# Copy to .npmrc (gitignored) and paste the token from your evaluation
+# onboarding — or put these two lines in your user-level ~/.npmrc instead.
+@reviseio:registry=https://registry.npmjs.org/
+//registry.npmjs.org/:_authToken=npm_YOUR_TOKEN_HERE
