@@ -37,12 +37,10 @@ function Segmented<T extends string>({
     </span>
   );
 }
-
 /**
- * The editor's own ribbon is off (`toolbarMode="none"`); this is the host's
- * toolbar built on `handle.toolbar` / `handle.view` / `handle.review`, and it
- * deliberately shows off the surfaces an integrator wires up rather than
- * duplicating bold/italic buttons a ribbon already proves.
+ * A host-owned toolbar built on `handle.toolbar` / `handle.view` /
+ * `handle.review`. It complements the native ribbon by demonstrating the
+ * controls an integrator can wire into its own application shell.
  */
 export function HostToolbar({
   handle,

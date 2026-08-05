@@ -28,12 +28,8 @@ import { ToolConsole } from "./panels/ToolConsole";
 import { PresencePanel } from "./panels/PresencePanel";
 import { SelectionPanel } from "./panels/SelectionPanel";
 
-/**
- * Collaboration is OFF by default while a packaging bug is open: the SDK's
- * bundle and this app end up with separate Yjs instances, so the Y.Doc built
- * here rejects the nodes the editor inserts ("Unexpected content type in
- * insert operation"). Add ?collab=1 to reproduce it.
- */
+// Collaboration is enabled by default. `?collab=0` disables the in-memory
+// transport when testing the editor without a shared Yjs document.
 const COLLAB_ON = new URLSearchParams(location.search).get("collab") !== "0";
 
 const ME = {
@@ -232,7 +228,7 @@ export default function App() {
             <small>
               a host application built on the{" "}
               <a
-                href="https://revise.io/sdk"
+                href="https://sdk.revise.io"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -312,7 +308,9 @@ export default function App() {
       />
 
       <main className="workspace">
-        <section className="editors">
+        <section
+          className={showColleague ? "editors with-colleague" : "editors"}
+        >
           <div className="editor-shell">
             <ReviseEditor
               key="mine"
@@ -342,8 +340,6 @@ export default function App() {
               }}
               onDocumentReady={() => {
                 setHandle(editorRef.current);
-                // Audit hook: lets browser automation drive the ribbon.
-                (window as any).__handle = editorRef.current;
               }}
               onDocumentModeChange={(_id, next) => setMode(next)}
               onAnalyticsEvent={(event, properties) => {

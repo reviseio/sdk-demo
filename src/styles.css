@@ -14,7 +14,6 @@
   --overlay: rgba(255, 255, 255, 0.88);
   font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
 }
-
 [data-theme="dark"] {
   --bg: #14120f;
   --surface: #1d1a16;
@@ -270,3 +269,31 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; padding: 12px; margin: 0; font-size: 13px; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; word-break: break-word; }
+
+@media (max-width: 900px) {
+  .app { height: auto; min-height: 100vh; }
+
+  .topbar { flex-wrap: wrap; gap: 10px; }
+  .brand { flex: 1 1 220px; }
+  .tabs {
+    order: 3; flex: 1 0 100%; overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .tab { flex: 0 0 auto; white-space: nowrap; }
+  .topbar-actions { margin-left: auto; flex-wrap: wrap; }
+
+  .host-toolbar { gap: 8px; }
+  .group.right { margin-left: 0; }
+
+  .workspace { flex: none; flex-direction: column; }
+  .editors { flex: none; height: 70vh; min-height: 520px; }
+  .editors.with-colleague { height: 120vh; min-height: 900px; }
+
+  .rail {
+    width: 100%; min-height: 320px;
+    border-left: none; border-top: 1px solid var(--line);
+  }
+  .rail-tabs { overflow-x: auto; }
+  .rail-tab { flex: 1 0 76px; }
+  .rail-body { max-height: 480px; }
+}

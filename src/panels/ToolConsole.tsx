@@ -26,12 +26,13 @@ type ToolDefinition = {
   inputSchema: JsonSchema;
 };
 
+const HIDDEN_DEMO_TOOLS = new Set(["revise_run_agent"]);
+
 function primaryType(schema: JsonSchema): string {
   const t = schema.type;
   if (Array.isArray(t)) return t.find((x) => x !== "null") ?? "string";
   return t ?? (schema.enum ? "string" : "object");
 }
-
 function typeLabel(schema: JsonSchema): string {
   if (schema.enum) return schema.enum.map(String).join(" | ");
   const t = primaryType(schema);
@@ -90,7 +91,12 @@ export function ToolConsole({
   onNotice: (message: string) => void;
 }) {
   const definitions = useMemo(
-    () => (handle ? (handle.getToolDefinitions() as ToolDefinition[]) : []),
+    () =>
+      handle
+        ? (handle.getToolDefinitions() as ToolDefinition[]).filter(
+            (definition) => !HIDDEN_DEMO_TOOLS.has(definition.name),
+          )
+        : [],
     [handle],
   );
 
