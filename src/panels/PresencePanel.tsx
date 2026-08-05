@@ -14,7 +14,14 @@ export function PresencePanel({
   if (!presence?.enabled) {
     return (
       <div className="empty">
-        <p>This document is not shared.</p>
+        <p>This document has no collaboration transport attached.</p>
+        <p className="hint">
+          The Mutual NDA tab is the shared one — collaboration in this demo
+          is an in-page relay, so click &ldquo;Show Dana&rdquo; in the header
+          to open a second live session below. Two separate browser tabs
+          will NOT sync: that needs a real transport (Hocuspocus,
+          y-websocket) plus a server, which the host application owns.
+        </p>
       </div>
     );
   }
@@ -46,8 +53,9 @@ export function PresencePanel({
 
       <p className="hint pad">
         The host owns the transport. This demo relays between two peers in
-        memory; a real integration passes a Hocuspocus or y-websocket provider
-        and the SDK treats it identically.
+        memory inside this one page — two separate browser tabs will not
+        sync. A real integration passes a Hocuspocus or y-websocket provider
+        backed by its own server, and the SDK treats it identically.
       </p>
     </div>
   );
