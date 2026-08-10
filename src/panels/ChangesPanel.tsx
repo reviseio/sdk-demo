@@ -111,29 +111,29 @@ export function ChangesPanel({
               </div>
 
               <div className="change-body">
-                {change.deletedText ? (
-                  <del>{truncate(change.deletedText)}</del>
-                ) : null}
-                {change.insertedText ? (
-                  <ins>{truncate(change.insertedText)}</ins>
-                ) : null}
-                {!change.deletedText && !change.insertedText ? (
-                  <span className="hint">
-                    {change.description ?? "Formatting change"}
-                  </span>
-                ) : null}
+                {change.kind === "move" ? (
+                  // One card per linked move: the same text left one place
+                  // and arrived in another, so show it once.
+                  <ins>{truncate(change.insertedText ?? change.deletedText ?? "")}</ins>
+                ) : (
+                  <>
+                    {change.deletedText ? (
+                      <del>{truncate(change.deletedText)}</del>
+                    ) : null}
+                    {change.insertedText ? (
+                      <ins>{truncate(change.insertedText)}</ins>
+                    ) : null}
+                    {!change.deletedText && !change.insertedText ? (
+                      <span className="hint">
+                        {change.description ?? "Formatting change"}
+                      </span>
+                    ) : null}
+                  </>
+                )}
               </div>
 
               <div className="change-actions">
-                <span className="where">
-                  {change.blockIds.length
-                    ? `block ${change.blockIds[0]}${
-                        change.blockIds.length > 1
-                          ? ` +${change.blockIds.length - 1}`
-                          : ""
-                      }`
-                    : "structural"}
-                </span>
+                <span className="where">{describeLocation(change)}</span>
                 <button
                   onClick={(event) => {
                     event.stopPropagation();
@@ -178,4 +178,20 @@ export function ChangesPanel({
 
 function truncate(text: string): string {
   return text.length > 140 ? `${text.slice(0, 140)}…` : text;
+}
+
+function describeBlocks(blockIds: string[]): string {
+  if (!blockIds.length) return "?";
+  return `${blockIds[0]}${blockIds.length > 1 ? ` +${blockIds.length - 1}` : ""}`;
+}
+
+function describeLocation(change: ReviseTrackedChange): string {
+  if (change.kind === "move") {
+    return `block ${describeBlocks(change.moveSourceBlockIds ?? [])} → ${describeBlocks(
+      change.moveDestinationBlockIds ?? [],
+    )}`;
+  }
+  return change.blockIds.length
+    ? `block ${describeBlocks(change.blockIds)}`
+    : "structural";
 }
