@@ -80,6 +80,7 @@ type RunResult = {
   agentFeedback?: string;
   error?: string;
   output?: unknown;
+  suggestionIds?: string[];
   durationMs: number;
 };
 
@@ -153,33 +154,30 @@ export function ToolConsole({
     setRunning(true);
     const startedAt = performance.now();
     try {
-      const outcome = (await handle.tools.execute(tool.name, input, {
+      // The dynamic path: this console feeds arbitrary tool names and JSON,
+      // exactly the way a model's tool calls arrive. Expected failures —
+      // role denials included — come back as { ok: false }, never a throw.
+      const outcome = await handle.tools.executeDynamic(tool.name, input, {
         ...(directMode ? { directMode: true } : {}),
-      })) as {
-        success?: boolean;
-        error?: string;
-        agentFeedback?: string;
-        output?: unknown;
-      };
-      setResult({
-        name: tool.name,
-        success: outcome.success !== false,
-        agentFeedback: outcome.agentFeedback,
-        error: outcome.error,
-        output: outcome.output,
-        durationMs: performance.now() - startedAt,
       });
-    } catch (error) {
-      // A role can refuse a tool outright — that arrives as a thrown
-      // ReviseRoleError rather than a failed result.
-      const message = error instanceof Error ? error.message : String(error);
-      setResult({
-        name: tool.name,
-        success: false,
-        error: message,
-        durationMs: performance.now() - startedAt,
-      });
-      onNotice(message);
+      setResult(
+        outcome.ok
+          ? {
+              name: tool.name,
+              success: true,
+              agentFeedback: outcome.value.message ?? undefined,
+              output: outcome.value.data,
+              suggestionIds: outcome.value.suggestionIds ?? undefined,
+              durationMs: performance.now() - startedAt,
+            }
+          : {
+              name: tool.name,
+              success: false,
+              error: `${outcome.error.code}: ${outcome.error.message}`,
+              durationMs: performance.now() - startedAt,
+            },
+      );
+      if (!outcome.ok) onNotice(outcome.error.message);
     } finally {
       setRunning(false);
     }
@@ -318,6 +316,13 @@ export function ToolConsole({
           ) : null}
           {result.agentFeedback ? (
             <p className="tool-feedback">{result.agentFeedback}</p>
+          ) : null}
+          {result.suggestionIds && result.suggestionIds.length > 0 ? (
+            <p className="tool-feedback">
+              Created {result.suggestionIds.length} tracked record
+              {result.suggestionIds.length === 1 ? "" : "s"}:{" "}
+              <code>{result.suggestionIds.join(", ")}</code>
+            </p>
           ) : null}
           {result.output !== undefined ? (
             <pre className="tool-output">

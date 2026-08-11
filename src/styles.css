@@ -298,3 +298,31 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   .rail-tab { flex: 1 0 76px; }
   .rail-body { max-height: 480px; }
 }
+
+/* Backend panel */
+.backend-stats {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  padding: 10px 12px; font-size: 12px; color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+.backend-stats strong { color: var(--ink, inherit); }
+.backend-section { border-top: 1px solid var(--line); }
+.backend-log {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 0 12px 12px;
+}
+.backend-log code {
+  font-size: 11px; line-height: 1.45; color: var(--muted);
+  white-space: pre-wrap; word-break: break-word;
+}
+.backend-log .panel-head-actions { margin-top: 8px; }
+.backend-form {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  padding: 0 12px;
+}
+.backend-form input, .backend-form select {
+  font: inherit; font-size: 12px; padding: 5px 8px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: transparent; color: inherit;
+}
+.backend-form button { grid-column: span 1; }

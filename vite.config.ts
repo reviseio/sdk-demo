@@ -6,7 +6,13 @@ export default defineConfig({
   // sets BASE_PATH to match. Local dev and root-domain hosting use "/".
   base: process.env.BASE_PATH ?? "/",
   plugins: [react()],
-  server: { port: 4321 },
+  server: {
+    port: 4321,
+    // The demo backend (`npm run server`) — a Node service built on
+    // @reviseio/sdk/backend. The Backend panel degrades gracefully when it
+    // is not running (e.g. on the static GitHub Pages deployment).
+    proxy: { "/api": "http://localhost:8787" },
+  },
   resolve: {
     // Yjs identifies its own types with `instanceof`, so the SDK and this app
     // must share ONE copy. Without this, the Y.Doc built here rejects the

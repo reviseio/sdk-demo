@@ -27,17 +27,15 @@ export function ChangesPanel({
 
   const resolve = (change: ReviseTrackedChange, accept: boolean) => {
     if (!handle) return;
-    try {
-      const applied = accept
-        ? handle.review.acceptSuggestions([change.id])
-        : handle.review.rejectSuggestions([change.id]);
-      if (applied === 0) {
-        onRefuse(
-          `A "${role}" may not ${accept ? "accept" : "reject"} tracked changes`,
-        );
-      }
-    } catch (error) {
-      onRefuse(error);
+    // Per-ID outcomes: a role that may not resolve reports the ID as
+    // unresolved rather than throwing.
+    const decision = accept
+      ? handle.review.acceptSuggestions([change.id])
+      : handle.review.rejectSuggestions([change.id]);
+    if (decision.unresolved.length > 0) {
+      onRefuse(
+        `A "${role}" may not ${accept ? "accept" : "reject"} tracked changes`,
+      );
     }
   };
 

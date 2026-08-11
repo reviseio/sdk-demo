@@ -27,6 +27,7 @@ import { CommentsPanel } from "./panels/CommentsPanel";
 import { ToolConsole } from "./panels/ToolConsole";
 import { PresencePanel } from "./panels/PresencePanel";
 import { SelectionPanel } from "./panels/SelectionPanel";
+import { BackendPanel } from "./panels/BackendPanel";
 
 // Collaboration is enabled by default. `?collab=0` disables the in-memory
 // transport when testing the editor without a shared Yjs document.
@@ -44,12 +45,19 @@ const COLLEAGUE = {
   color: "#5A7D93",
 };
 
-type PanelId = "changes" | "comments" | "tools" | "presence" | "selection";
+type PanelId =
+  | "changes"
+  | "comments"
+  | "tools"
+  | "backend"
+  | "presence"
+  | "selection";
 
 const PANELS: Array<{ id: PanelId; label: string }> = [
   { id: "changes", label: "Changes" },
   { id: "comments", label: "Comments" },
   { id: "tools", label: "Agent tools" },
+  { id: "backend", label: "Backend" },
   { id: "presence", label: "Presence" },
   { id: "selection", label: "Selection" },
 ];
@@ -108,9 +116,14 @@ export default function App() {
   // One shared room. The SDK builds each document and hands it to `connect`,
   // which is where a real integration would open its socket.
   const hub = useMemo(() => new LoopbackHub(), []);
+  // The Backend panel round-trips this same Y.Doc through the Node service,
+  // so grab it as the SDK hands it to the transport.
+  const [sampleYDoc, setSampleYDoc] = useState<YDoc | null>(null);
   const connectMine = useMemo(
-    () => (doc: YDoc, awareness: YAwareness) =>
-      new LoopbackProvider(hub, doc, awareness),
+    () => (doc: YDoc, awareness: YAwareness) => {
+      setSampleYDoc(doc);
+      return new LoopbackProvider(hub, doc, awareness);
+    },
     [hub],
   );
   const connectTheirs = useMemo(
@@ -432,6 +445,16 @@ export default function App() {
             ) : null}
             {panel === "tools" ? (
               <ToolConsole handle={handle} onNotice={say} />
+            ) : null}
+            {panel === "backend" ? (
+              <BackendPanel
+                handle={handle}
+                ydoc={activeId === SAMPLE_DOCUMENTS[0].id ? sampleYDoc : null}
+                documentId={
+                  activeId === SAMPLE_DOCUMENTS[0].id ? activeId : null
+                }
+                onNotice={say}
+              />
             ) : null}
             {panel === "presence" ? (
               <PresencePanel
