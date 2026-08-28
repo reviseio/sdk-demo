@@ -80,6 +80,8 @@ type RunResult = {
   agentFeedback?: string;
   error?: string;
   output?: unknown;
+  /** Block-ID-preserving revise-html from read/search tools — the actual document text. */
+  contextHtml?: string;
   suggestionIds?: string[];
   durationMs: number;
 };
@@ -94,9 +96,9 @@ export function ToolConsole({
   const definitions = useMemo(
     () =>
       handle
-        ? (handle.getToolDefinitions() as ToolDefinition[]).filter(
-            (definition) => !HIDDEN_DEMO_TOOLS.has(definition.name),
-          )
+        ? (handle.getToolDefinitions() as ToolDefinition[])
+            .filter((definition) => !HIDDEN_DEMO_TOOLS.has(definition.name))
+            .sort((a, b) => a.name.localeCompare(b.name))
         : [],
     [handle],
   );
@@ -167,6 +169,7 @@ export function ToolConsole({
               success: true,
               agentFeedback: outcome.value.message ?? undefined,
               output: outcome.value.data,
+              contextHtml: outcome.value.context?.html,
               suggestionIds: outcome.value.suggestionIds ?? undefined,
               durationMs: performance.now() - startedAt,
             }
@@ -324,10 +327,24 @@ export function ToolConsole({
               <code>{result.suggestionIds.join(", ")}</code>
             </p>
           ) : null}
+          {result.contextHtml ? (
+            <details className="tool-context" open>
+              <summary>
+                context — the loaded blocks (<code>result.context.html</code>,
+                block-ID-preserving revise-html)
+              </summary>
+              <pre className="tool-output">{result.contextHtml}</pre>
+            </details>
+          ) : null}
           {result.output !== undefined ? (
-            <pre className="tool-output">
-              {JSON.stringify(result.output, null, 2)}
-            </pre>
+            <details className="tool-context" open={!result.contextHtml}>
+              <summary>
+                data — structured metadata (<code>result.data</code>)
+              </summary>
+              <pre className="tool-output">
+                {JSON.stringify(result.output, null, 2)}
+              </pre>
+            </details>
           ) : null}
         </div>
       ) : null}

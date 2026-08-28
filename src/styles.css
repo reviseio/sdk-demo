@@ -267,6 +267,12 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   font-family: ui-monospace, monospace; white-space: pre-wrap; word-break: break-word;
 }
 
+.tool-context summary {
+  padding: 4px 12px 6px; font-size: 11px; color: var(--muted); cursor: pointer;
+}
+.tool-context summary code { font-family: ui-monospace, monospace; }
+.tool-context[open] summary { color: inherit; }
+
 .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; padding: 12px; margin: 0; font-size: 13px; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; word-break: break-word; }
