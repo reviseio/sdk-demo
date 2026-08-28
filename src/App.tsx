@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ReviseEditor,
+  REVISE_SDK_VERSION,
   createEmptyDocx,
   ReviseRoleError,
   type ReviseCollaborationState,
@@ -194,10 +195,13 @@ export default function App() {
   const importDocument = async (file: File) => {
     if (!handle) return;
     const id = `import-${Date.now().toString(36)}`;
+    // Title without the extension ("Quarterly Report.docx" -> "Quarterly
+    // Report"); a dotfile-style name with no stem keeps its full name.
+    const title = file.name.replace(/\.[^./\\]+$/, "") || file.name;
     try {
       // The SDK's import pipeline: format inferred from the filename (DOCX,
       // Markdown, plain text, HTML), parsed entirely client-side.
-      await handle.documents.open({ id, title: file.name, docx: file });
+      await handle.documents.open({ id, title, docx: file });
       say(`Imported ${file.name} — parsed in the browser, no upload`);
     } catch (error) {
       say(
@@ -246,7 +250,8 @@ export default function App() {
                 rel="noopener noreferrer"
               >
                 Revise SDK
-              </a>
+              </a>{" "}
+              <code className="sdk-version">v{REVISE_SDK_VERSION}</code>
             </small>
           </div>
         </div>
