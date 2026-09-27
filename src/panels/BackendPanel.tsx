@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { ReviseEditorHandle } from "@reviseio/sdk";
+import type { ReviseEditorHandle } from "revise/editor";
 import type { Doc as YDoc } from "yjs";
 
 import {
@@ -14,7 +14,7 @@ import {
 
 /**
  * The server half of the demo: the same document this tab is editing, round-
- * tripped through a Node service built on `@reviseio/sdk/backend`.
+ * tripped through a Node service built on `revise/server`.
  *
  * The client posts its live Y.Doc; the server runs the canonical semantic
  * tools against it headlessly and answers with a CRDT delta. Suggesting-mode
@@ -74,7 +74,7 @@ export function BackendPanel({
         <p>Backend service is offline.</p>
         <p className="hint">
           This panel talks to a local Node service built on{" "}
-          <code>@reviseio/sdk/backend</code> — the same semantic tools, run
+          <code>revise/server</code> — the same semantic tools, run
           server-side against this very document. Start it in a second
           terminal:
         </p>

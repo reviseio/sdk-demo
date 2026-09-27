@@ -1,4 +1,4 @@
-import type { ReviseCollaborationState } from "@reviseio/sdk";
+import type { ReviseCollaborationState } from "revise/editor";
 
 /** Presence read from `collaboration.getState()` — the roster the SDK
  * normalises out of Yjs awareness, with the colours the carets are drawn in. */

@@ -10,8 +10,7 @@ examples/output/
 .vite/
 vite.config.ts.timestamp-*
 
-# The registry credential for @reviseio/sdk lives in your user-level ~/.npmrc,
-# or in CI as an environment variable. Never here.
+# Local registry credentials
 .npmrc
 .env
 .env.*

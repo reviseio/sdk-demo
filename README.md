@@ -2,16 +2,14 @@
 
 A standalone React demo of the [Revise SDK](https://revise.io/sdk)
 
-[Live Demo](https://reviseio.github.io/sdk-demo/) | [SDK Documentation](https://sdk.revise.io)
+[Live Demo](https://reviseio.github.io/sdk-demo/) | [SDK Documentation](https://developer.revise.io/editor-sdk)
 
 ## Run locally
 
-You need Node.js 18 or newer and the read-only npm token supplied with your
-Revise SDK evaluation.
+You need Node.js 18 or newer. The SDK is the public
+[`revise`](https://www.npmjs.com/package/revise) package, so no token is needed.
 
 ```bash
-cp .npmrc.example .npmrc
-export REVISE_NPM_TOKEN=npm_your_token_here
 npm ci
 npm run dev
 ```
@@ -27,7 +25,7 @@ npm run server
 
 Then open the **Backend** panel in the app's right-hand rail. The panel posts
 the live collaborative document to the service (a stateless HTTP server built
-on `@reviseio/sdk/backend`, in [`server/`](server/index.ts)), which runs the
+on `revise/server`, in [`server/`](server/index.ts)), which runs the
 same semantic tools headlessly and answers with a CRDT delta:
 
 - **Run review** — a canned server-side "counsel pass" that tightens wordy
@@ -82,5 +80,5 @@ Generated files are written to `examples/output/` and ignored by Git. In an
 application server, replace the embedded Markdown with uploaded bytes or a
 stored Yjs update; the editing API is unchanged.
 
-See the [Revise SDK documentation](https://sdk.revise.io) for integration,
+See the [Revise SDK documentation](https://developer.revise.io/editor-sdk) for integration,
 authentication, and deployment guidance.

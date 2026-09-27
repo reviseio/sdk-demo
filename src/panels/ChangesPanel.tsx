@@ -3,7 +3,7 @@ import type {
   ReviseEditorHandle,
   ReviseReviewState,
   ReviseTrackedChange,
-} from "@reviseio/sdk";
+} from "revise/editor";
 
 /**
  * A Word-style review panel, built entirely from `review.listChanges()`. This

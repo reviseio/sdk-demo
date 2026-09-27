@@ -1,3 +1,0 @@
-# Copy this file to .npmrc, then export the token from your evaluation email.
-@reviseio:registry=https://registry.npmjs.org/
-//registry.npmjs.org/:_authToken=${REVISE_NPM_TOKEN}

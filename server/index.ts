@@ -1,6 +1,6 @@
 /**
  * The demo's backend: a small stateless HTTP service built on
- * `@reviseio/sdk/backend`, showing how a host's server works on the same
+ * `revise/server`, showing how a host's server works on the same
  * document its browser clients are editing.
  *
  * Protocol: the client POSTs its Y.Doc as one encoded update; the server
@@ -20,7 +20,7 @@ import {
   ydocToDocument,
   ydocToDocx,
   type ServerDocumentSession,
-} from "@reviseio/sdk/backend";
+} from "revise/server";
 
 const PORT = Number(process.env.PORT ?? 8787);
 

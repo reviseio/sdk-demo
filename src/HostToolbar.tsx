@@ -4,7 +4,7 @@ import type {
   ReviseEditorHandle,
   ReviseReviewState,
   ReviseToolbarState,
-} from "@reviseio/sdk";
+} from "revise/editor";
 
 export type ThemePreference = "light" | "dark" | "system";
 export type MarkupStyle = "revise" | "word";

@@ -11,8 +11,8 @@ import {
   type ReviseSelectionSnapshot,
   type ReviseToolbarState,
   type ReviseTrackedChange,
-} from "@reviseio/sdk";
-import "@reviseio/sdk/style.css";
+} from "revise/editor";
+import "revise/style.css";
 
 import { SAMPLE_DOCUMENTS } from "./sampleDocument";
 import type { Doc as YDoc } from "yjs";
@@ -245,7 +245,7 @@ export default function App() {
             <small>
               a host application built on the{" "}
               <a
-                href="https://sdk.revise.io"
+                href="https://developer.revise.io/editor-sdk"
                 target="_blank"
                 rel="noopener noreferrer"
               >

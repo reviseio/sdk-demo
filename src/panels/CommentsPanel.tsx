@@ -3,7 +3,7 @@ import type {
   ReviseDocumentRole,
   ReviseEditorHandle,
   ReviseReviewState,
-} from "@reviseio/sdk";
+} from "revise/editor";
 
 /** Comment threads read from review state and written through the same
  * controller — including replies and resolution. */
