@@ -332,6 +332,8 @@ export default function App() {
           <div className="editor-shell">
             <ReviseEditor
               key="mine"
+              // Demo traffic is not adoption: keep the SDK's usage ping off.
+              telemetry={false}
               currentUser={ME}
               role={role}
               initialDocuments={initialDocuments}
@@ -379,6 +381,8 @@ export default function App() {
               </div>
               <ReviseEditor
                 key="theirs"
+                // Demo traffic is not adoption: keep the SDK's usage ping off.
+                telemetry={false}
                 currentUser={COLLEAGUE}
                 role="suggester"
                 settings={{
