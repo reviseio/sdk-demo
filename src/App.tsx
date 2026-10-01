@@ -138,7 +138,7 @@ export default function App() {
       {
         id: SAMPLE_DOCUMENTS[0].id,
         title: SAMPLE_DOCUMENTS[0].title,
-        docx: SAMPLE_DOCUMENTS[0].file(),
+        source: SAMPLE_DOCUMENTS[0].file(),
         ...(COLLAB_ON
           ? { collaboration: { connect: connectMine, synced: true } }
           : {}),
@@ -186,7 +186,7 @@ export default function App() {
     await handle.documents.open({
       id,
       title: "Untitled",
-      docx: await createEmptyDocx(),
+      source: await createEmptyDocx(),
     });
     say("New blank document — same session, its own tab");
   };
@@ -201,7 +201,7 @@ export default function App() {
     try {
       // The SDK's import pipeline: format inferred from the filename (DOCX,
       // Markdown, plain text, HTML), parsed entirely client-side.
-      await handle.documents.open({ id, title, docx: file });
+      await handle.documents.open({ id, title, source: file });
       say(`Imported ${file.name} — parsed in the browser, no upload`);
     } catch (error) {
       say(
