@@ -1,7 +1,7 @@
 /**
- * The demo's backend: a small stateless HTTP service built on
- * `@reviseio/editor/server`, showing how a host's server works on the same
- * document its browser clients are editing.
+ * The demo's backend: a small stateless HTTP service built on `revise`
+ * (the MIT library for server-side work on Revise documents), showing how a
+ * host's server works on the same document its browser clients are editing.
  *
  * Protocol: the client POSTs its Y.Doc as one encoded update; the server
  * decodes it, runs semantic tools against it, and responds with only the
@@ -14,13 +14,7 @@
  */
 import http from "node:http";
 import * as Y from "yjs";
-import {
-  createServerDocumentSession,
-  decodeYDoc,
-  ydocToDocument,
-  ydocToDocx,
-  type ServerDocumentSession,
-} from "@reviseio/editor/server";
+import { ReviseDocument } from "revise";
 
 const PORT = Number(process.env.PORT ?? 8787);
 
@@ -60,47 +54,38 @@ function readBody(request: http.IncomingMessage): Promise<JsonBody> {
   });
 }
 
-/** Decode the client's document and remember where its state ended. */
-function openDocument(body: JsonBody): { ydoc: Y.Doc; baseline: Uint8Array } {
+/** Open the client's document (its full Y.js state) in the given mode,
+ * remember where its state ended, and release it when the work is done. */
+async function withDocument<T>(
+  body: JsonBody,
+  mode: "editing" | "suggesting",
+  work: (doc: ReviseDocument, baseline: Uint8Array) => Promise<T>,
+): Promise<T> {
   if (typeof body.update !== "string") {
     throw new Error("Missing `update` (base64 Yjs document state).");
   }
-  const ydoc = decodeYDoc(b64decode(body.update));
-  return { ydoc, baseline: Y.encodeStateVector(ydoc) };
+  const doc = await ReviseDocument.restore(b64decode(body.update), {
+    documentId: String(body.documentId ?? "demo-document"),
+    mode,
+  });
+  try {
+    return await work(doc, Y.encodeStateVector(doc.ydoc));
+  } finally {
+    doc.dispose();
+  }
+}
+
+/** A tool result's value; a failed call becomes an error response. */
+function unwrap<T>(
+  result: { ok: true; value: T } | { ok: false; error: { code: string; message: string } },
+): T {
+  if (!result.ok) throw new Error(`${result.error.code}: ${result.error.message}`);
+  return result.value;
 }
 
 /** Everything the server changed, as a delta the client can merge. */
 function deltaSince(ydoc: Y.Doc, baseline: Uint8Array): string {
   return b64encode(Y.encodeStateAsUpdate(ydoc, baseline));
-}
-
-async function withSession<T>(
-  ydoc: Y.Doc,
-  documentId: string,
-  mode: "editing" | "suggesting",
-  work: (session: ServerDocumentSession) => Promise<T>,
-): Promise<T> {
-  const session = await createServerDocumentSession(ydoc, {
-    documentId,
-    mode,
-  });
-  try {
-    return await work(session);
-  } finally {
-    session.dispose();
-  }
-}
-
-/** Plain text of one block, for scanning without loading tool context. */
-function blockText(block: unknown): string {
-  const collect = (node: unknown): string => {
-    if (!node || typeof node !== "object") return "";
-    const record = node as { text?: string; children?: unknown[] };
-    let out = typeof record.text === "string" ? record.text : "";
-    for (const child of record.children ?? []) out += collect(child);
-    return out;
-  };
-  return collect(block);
 }
 
 /** Phrase → tighter phrase. The review pass suggests these where they occur. */
@@ -128,14 +113,12 @@ interface ReviewResponse {
  * Everything lands as pending suggestions the client accepts or rejects.
  */
 async function reviewPass(body: JsonBody): Promise<ReviewResponse> {
-  const { ydoc, baseline } = openDocument(body);
-  const documentId = String(body.documentId ?? "demo-document");
-  return withSession(ydoc, documentId, "suggesting", async (session) => {
+  return withDocument(body, "suggesting", async (doc, baseline) => {
     const log: string[] = [];
     const suggestionIds: string[] = [];
-    const pendingBefore = new Set(session.getPendingSuggestionIds());
+    const pendingBefore = new Set((await doc.changes()).map((c) => c.id));
 
-    const measured = await session.tools.call("measure_document");
+    const measured = unwrap(await doc.tools.call("measure_document"));
     log.push(
       `measure_document: ${measured.data.wordCount} words in ${measured.data.totalBlocks} blocks.`,
     );
@@ -144,13 +127,12 @@ async function reviewPass(body: JsonBody): Promise<ReviewResponse> {
     // Sequential calls to the same block would re-plan it — earlier calls'
     // suggestion records get superseded under fresh IDs — so batching is what
     // keeps the returned `suggestionIds` the ones that actually survive.
-    const blocks = ydocToDocument(ydoc).children as Array<{ id?: string }>;
-    for (const block of blocks) {
-      if (!block.id) continue;
-      const text = blockText(block);
-      const pairs = WORDINESS.filter((pair) => text.includes(pair.find));
+    // Every text block with its id (paragraphs, headings, list items,
+    // table-cell paragraphs).
+    for (const block of doc.grep(/\S/)) {
+      const pairs = WORDINESS.filter((pair) => block.text.includes(pair.find));
       if (pairs.length === 0) continue;
-      const result = await session.tools.execute("replace", {
+      const result = await doc.tools.call("replace", {
         id: block.id,
         replacements: pairs.map((pair) => ({
           find: pair.find,
@@ -174,18 +156,17 @@ async function reviewPass(body: JsonBody): Promise<ReviewResponse> {
     }
 
     // Re-read: the replacements above may have re-planned block contents.
-    const longest = (ydocToDocument(ydoc).children as Array<{ id?: string }>)
-      .map((block) => ({ id: block.id, text: blockText(block) }))
-      .filter((entry) => entry.id && entry.text.trim().length > 0)
+    const longest = doc
+      .grep(/\S/)
       .sort((a, b) => b.text.length - a.text.length)[0];
     if (longest?.id) {
       // Comments require their target in context, same as for a model: load
       // the block first.
-      await session.tools.execute("read_specific_blocks", {
+      await doc.tools.call("read_specific_blocks", {
         block_ids: [longest.id],
         context_notes: "Annotating the longest paragraph.",
       });
-      const comment = await session.tools.execute("leave_comment", {
+      const comment = await doc.tools.call("leave_comment", {
         id: longest.id,
         anchor: { whole_block: true },
         comment: `Longest paragraph in the document (${longest.text.length} characters) — consider whether it earns its length. — demo backend service`,
@@ -200,8 +181,8 @@ async function reviewPass(body: JsonBody): Promise<ReviewResponse> {
     // Belt and braces: report the records that actually survived the pass
     // (a later operation on the same block can supersede earlier ones), not
     // the raw accumulation of per-call IDs.
-    const created = session
-      .getPendingSuggestionIds()
+    const created = (await doc.changes())
+      .map((change) => change.id)
       .filter((id) => !pendingBefore.has(id));
     if (created.length !== suggestionIds.length) {
       log.push(
@@ -213,26 +194,22 @@ async function reviewPass(body: JsonBody): Promise<ReviewResponse> {
       log,
       suggestionIds: created,
       stats: measured.data,
-      update: deltaSince(ydoc, baseline),
+      update: deltaSince(doc.ydoc, baseline),
     };
   });
 }
 
 /** Find/replace across every block containing the phrase. */
 async function replaceEverywhere(body: JsonBody) {
-  const { ydoc, baseline } = openDocument(body);
   const find = String(body.find ?? "");
   const replace = String(body.replace ?? "");
   const mode = body.mode === "editing" ? "editing" : "suggesting";
   if (!find) throw new Error("Missing `find`.");
-  const documentId = String(body.documentId ?? "demo-document");
-  return withSession(ydoc, documentId, mode, async (session) => {
-    const blocks = ydocToDocument(ydoc).children as Array<{ id?: string }>;
+  return withDocument(body, mode, async (doc, baseline) => {
     const suggestionIds: string[] = [];
     let replacedBlocks = 0;
-    for (const block of blocks) {
-      if (!block.id || !blockText(block).includes(find)) continue;
-      const result = await session.tools.execute("replace", {
+    for (const block of doc.grep(find)) {
+      const result = await doc.tools.call("replace", {
         id: block.id,
         replacements: [{ find, replace, occurrence: "all" }],
       });
@@ -245,31 +222,29 @@ async function replaceEverywhere(body: JsonBody) {
       mode,
       replacedBlocks,
       suggestionIds,
-      update: deltaSince(ydoc, baseline),
+      update: deltaSince(doc.ydoc, baseline),
     };
   });
 }
 
 async function measure(body: JsonBody) {
-  const { ydoc } = openDocument(body);
-  const documentId = String(body.documentId ?? "demo-document");
-  return withSession(ydoc, documentId, "editing", async (session) => {
-    const measured = await session.tools.call("measure_document", {
+  return withDocument(body, "editing", async (doc) => {
+    const measured = unwrap(
+      await doc.tools.call("measure_document", {
       include_sections: true,
-    });
+      }),
+    );
     return { stats: measured.data };
   });
 }
 
 /** Any tool by name — the server-side twin of the client's tool console. */
 async function runTool(body: JsonBody) {
-  const { ydoc, baseline } = openDocument(body);
-  const documentId = String(body.documentId ?? "demo-document");
   const mode = body.mode === "editing" ? "editing" : "suggesting";
   const tool = String(body.tool ?? "");
   const input = (body.input ?? {}) as Record<string, never>;
-  return withSession(ydoc, documentId, mode, async (session) => {
-    const result = await session.tools.executeDynamic(tool, input);
+  return withDocument(body, mode, async (doc, baseline) => {
+    const result = await doc.tools.run(tool, input);
     return result.ok
       ? {
           ok: true as const,
@@ -277,15 +252,17 @@ async function runTool(body: JsonBody) {
           data: result.value.data,
           contextHtml: result.value.context?.html ?? null,
           suggestionIds: result.value.suggestionIds,
-          update: deltaSince(ydoc, baseline),
+          update: deltaSince(doc.ydoc, baseline),
         }
       : { ok: false as const, error: result.error };
   });
 }
 
 async function exportDocx(body: JsonBody): Promise<Uint8Array> {
-  const { ydoc } = openDocument(body);
-  return ydocToDocx(ydoc);
+  return withDocument(body, "editing", async (doc) => {
+    const exported = await doc.export({ format: "docx", mode: "review" });
+    return exported.bytes;
+  });
 }
 
 const server = http.createServer((request, response) => {

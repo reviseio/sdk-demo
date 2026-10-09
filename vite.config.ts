@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     port: 4321,
     // The demo backend (`npm run server`) — a Node service built on
-    // @reviseio/editor/server. The Backend panel degrades gracefully when it
+    // revise. The Backend panel degrades gracefully when it
     // is not running (e.g. on the static GitHub Pages deployment).
     proxy: { "/api": "http://localhost:8787" },
   },

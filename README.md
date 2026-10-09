@@ -25,7 +25,7 @@ npm run server
 
 Then open the **Backend** panel in the app's right-hand rail. The panel posts
 the live collaborative document to the service (a stateless HTTP server built
-on `@reviseio/editor/server`, in [`server/`](server/index.ts)), which runs the
+on `revise`, in [`server/`](server/index.ts)), which runs the
 same semantic tools headlessly and answers with a CRDT delta:
 
 - **Run review** — a canned server-side "counsel pass" that tightens wordy
@@ -52,24 +52,18 @@ npm run build
 ## Backend semantic editing
 
 [`examples/backend-semantic-editing.ts`](examples/backend-semantic-editing.ts)
-is a self-contained Node example using the SDK's headless document tools. It:
+is a self-contained Node example using [`revise`](https://www.npmjs.com/package/revise), the
+MIT library for server-side work on the same documents. It:
 
-- creates a Yjs document from Markdown;
+- opens a Markdown file as a Revise document;
 - finds and edits a clause with typed semantic tools;
 - switches between direct editing and tracked suggestions;
 - collects the created suggestion IDs from the mutation result, inspects
-  pending records with `listSuggestions()`, and accepts them by ID with a
+  pending changes with `changes()`, and accepts them by ID with a
   per-ID outcome; and
-- exports DOCX and persisted Yjs artifacts.
+- exports DOCX and a snapshot `ReviseDocument.restore()` can reopen.
 
 Run it with:
-
-[`examples/backend-full-exercise.ts`](examples/backend-full-exercise.ts) is an
-exhaustive harness covering every backend export and all 24 semantic tools in
-both modes — 106 assertions over conversion, reads, search, measurement, every
-mutation tool, footnotes, tables, comments, the suggestion review lifecycle,
-and runtime hygiene (no console noise, no unhandled rejections). Run it with
-`npm run exercise:backend`.
 
 ```bash
 npm run check:backend
