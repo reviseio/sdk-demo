@@ -7,7 +7,7 @@ import {
   encodeYDoc,
   fileToYDoc,
   ydocToDocx,
-} from "revise/server";
+} from "@reviseio/editor/server";
 
 const source = `# Mutual NDA
 

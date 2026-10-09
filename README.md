@@ -25,7 +25,7 @@ npm run server
 
 Then open the **Backend** panel in the app's right-hand rail. The panel posts
 the live collaborative document to the service (a stateless HTTP server built
-on `revise/server`, in [`server/`](server/index.ts)), which runs the
+on `@reviseio/editor/server`, in [`server/`](server/index.ts)), which runs the
 same semantic tools headlessly and answers with a CRDT delta:
 
 - **Run review** — a canned server-side "counsel pass" that tightens wordy

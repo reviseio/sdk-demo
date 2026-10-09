@@ -11,8 +11,8 @@ import {
   type ReviseSelectionSnapshot,
   type ReviseToolbarState,
   type ReviseTrackedChange,
-} from "revise/editor";
-import "revise/style.css";
+} from "@reviseio/editor";
+import "@reviseio/editor/style.css";
 
 import { SAMPLE_DOCUMENTS } from "./sampleDocument";
 import type { Doc as YDoc } from "yjs";

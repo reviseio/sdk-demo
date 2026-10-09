@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { ReviseEditorHandle } from "revise/editor";
+import type { ReviseEditorHandle } from "@reviseio/editor";
 
 /**
  * A Swagger-style console over the agent tool surface: pick any of the tools

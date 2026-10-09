@@ -1,7 +1,7 @@
 import type {
   ReviseEditorHandle,
   ReviseSelectionSnapshot,
-} from "revise/editor";
+} from "@reviseio/editor";
 
 /** Live selection, straight off `selection.observe()`. Nothing here scrapes
  * the DOM — the editor is a canvas, and this is the supported way to know

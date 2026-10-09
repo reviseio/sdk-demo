@@ -1,5 +1,5 @@
 /**
- * Exhaustive exercise of `revise/server`.
+ * Exhaustive exercise of `@reviseio/editor/server`.
  *
  * Touches every exported function and all 24 semantic tools in both editing
  * and suggesting modes, asserting observable document state after each call.
@@ -25,7 +25,7 @@ import {
   ydocToDocument,
   ydocToDocx,
   type ServerDocumentSession,
-} from "revise/server";
+} from "@reviseio/editor/server";
 
 const outputDirectory = fileURLToPath(new URL("./output/", import.meta.url));
 const bytes = (value: string) => new TextEncoder().encode(value);
