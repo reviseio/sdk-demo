@@ -245,7 +245,7 @@ export default function App() {
             <small>
               a host application built on the{" "}
               <a
-                href="https://developer.revise.io/editor-sdk"
+                href="https://revise.io/developer/docs/editor-sdk"
                 target="_blank"
                 rel="noopener noreferrer"
               >

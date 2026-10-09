@@ -2,12 +2,12 @@
 
 A standalone React demo of the [Revise SDK](https://revise.io/sdk)
 
-[Live Demo](https://reviseio.github.io/sdk-demo/) | [SDK Documentation](https://developer.revise.io/editor-sdk)
+[Live Demo](https://reviseio.github.io/sdk-demo/) | [SDK Documentation](https://revise.io/developer/docs/editor-sdk)
 
 ## Run locally
 
 You need Node.js 18 or newer. The SDK is the public
-[`revise`](https://www.npmjs.com/package/revise) package, so no token is needed.
+[`@reviseio/editor`](https://www.npmjs.com/package/@reviseio/editor) package, so no token is needed.
 
 ```bash
 npm ci
@@ -80,5 +80,5 @@ Generated files are written to `examples/output/` and ignored by Git. In an
 application server, replace the embedded Markdown with uploaded bytes or a
 stored Yjs update; the editing API is unchanged.
 
-See the [Revise SDK documentation](https://developer.revise.io/editor-sdk) for integration,
+See the [Revise SDK documentation](https://revise.io/developer/docs/editor-sdk) for integration,
 authentication, and deployment guidance.
